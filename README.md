@@ -9,6 +9,20 @@ A reproducible audit of one IFEval instruction family: does the automatic verdic
 - **Benchmark:** IFEval (Zhou et al., 2023, *Instruction-Following Evaluation for Large Language Models*), run through Inspect Evals.
 - **Family audited:** `startend:end_checker` — "Finish your response with this exact phrase: …". The required phrase is stored as a parameter, `end_phrase`.
 
+## Example
+
+Illustrative item (not taken from the dataset), with `end_phrase = "Any other questions?"`:
+
+> **Prompt:** Explain how volcanoes form. Finish your response with this exact phrase "Any other questions?". No other words should follow this phrase.
+
+| Response ends with… | Expected verdict | Why |
+|---|---|---|
+| `…when magma rises. Any other questions?` | `True` | Ends with the exact phrase. |
+| `…when magma rises. Any other questions? Have a nice day.` | `False` | Other words follow the phrase. |
+| `…when magma rises. "Any other questions?"` | Ambiguous | The instruction does not say whether quotation marks around the phrase are allowed: `False` under a literal reading, `True` under an intent reading. |
+
+The third row is the kind of case this audit is about: the verdict then depends on a convention chosen by the checker, not on the instruction.
+
 ## What the verdict measures
 
 A `True` verdict asserts that the response ends with the requested phrase (`end_phrase`).
