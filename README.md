@@ -50,7 +50,7 @@ For this family and this version, where does the automatic verdict depend on a c
 
 ## Method (planned)
 
-1. Write expected verdicts from the instruction text, **before** reading the checker's code or output. Ambiguous cases record both readings instead of picking one.
+1. Write expected verdicts from the instruction text, **before** reading the checker's code or output. Each test case changes **one factor** relative to a reference response that passes. Ambiguous cases record both readings instead of picking one. Cases: [`cases/end_checker_expected.yaml`](cases/end_checker_expected.yaml).
 2. Run the cases through the checker and compare, case by case: agreement, disagreement, or convention.
 3. Check agreement between the instruction text, the stored `end_phrase` and the checker.
 4. Compare findings with known issues (IFEval++, ACL 2026, appendix B.3) before claiming anything new.

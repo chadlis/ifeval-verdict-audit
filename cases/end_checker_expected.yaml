@@ -1,0 +1,147 @@
+# Expected verdicts for IFEval `startend:end_checker`, written from the
+# instruction text BEFORE reading the checker's code or output.
+#
+# Instruction (template, to be checked against the dataset):
+#   "Finish your response with this exact phrase {end_phrase}.
+#    No other words should follow this phrase."
+#
+# Each case changes ONE factor relative to the reference response.
+# expected_literal: verdict under a character-by-character reading.
+# expected_intent:  verdict under a reading of what the instruction asks.
+# When both agree, the case is not ambiguous.
+
+end_phrase: "Any other questions?"
+prompt: >-
+  Explain how volcanoes form. Finish your response with this exact phrase
+  "Any other questions?". No other words should follow this phrase.
+
+cases:
+  # --- Clearly true -------------------------------------------------------
+  - id: reference
+    category: clear_true
+    factor: none
+    response: "Volcanoes form when magma rises to the surface. Any other questions?"
+    expected_literal: true
+    expected_intent: true
+
+  - id: phrase_only
+    category: clear_true
+    factor: no task content
+    response: "Any other questions?"
+    expected_literal: true
+    expected_intent: true
+    note: Passes without doing the task. Illustrates what a True verdict does not show.
+
+  # --- Clearly false ------------------------------------------------------
+  - id: words_after_phrase
+    category: clear_false
+    factor: words after the phrase
+    response: "Volcanoes form when magma rises to the surface. Any other questions? Have a nice day."
+    expected_literal: false
+    expected_intent: false
+    note: Settled by "No other words should follow this phrase".
+
+  - id: polite_closing_after_phrase
+    category: clear_false
+    factor: words after the phrase
+    response: "Volcanoes form when magma rises to the surface. Any other questions? Please let me know."
+    expected_literal: false
+    expected_intent: false
+
+  - id: word_inserted_in_phrase
+    category: clear_false
+    factor: word inserted inside the phrase
+    response: "Volcanoes form when magma rises to the surface. Any other questions, Salah?"
+    expected_literal: false
+    expected_intent: false
+    note: 'The words "exact phrase" exclude inserting words into it.'
+
+  - id: phrase_absent
+    category: clear_false
+    factor: phrase missing
+    response: "Volcanoes form when magma rises to the surface. What's your name ?"
+    expected_literal: false
+    expected_intent: false
+
+  # --- Ambiguous: the instruction does not settle the case ----------------
+  - id: lowercase_phrase
+    category: ambiguous
+    factor: letter case
+    response: "Volcanoes form when magma rises to the surface. any other questions?"
+    expected_literal: false
+    expected_intent: true
+    note: The instruction says nothing about letter case.
+
+  - id: quotes_around_phrase
+    category: ambiguous
+    factor: quotation marks around the phrase
+    response: "Volcanoes form when magma rises to the surface. \"Any other questions?\""
+    expected_literal: false
+    expected_intent: true
+    note: The prompt itself shows the phrase in quotes. The model may be copying them.
+
+  - id: extra_punctuation_after
+    category: ambiguous
+    factor: punctuation after the phrase (not a word)
+    response: "Volcanoes form when magma rises to the surface. Any other questions?!!!!"
+    expected_literal: false
+    expected_intent: true
+    note: The instruction forbids words after the phrase, not punctuation.
+
+  - id: markdown_bold_one_word
+    category: ambiguous
+    factor: markdown formatting inside the phrase
+    response: "Volcanoes form when magma rises to the surface. Any other **questions**?"
+    expected_literal: false
+    expected_intent: true
+    note: Rendered text is identical. Raw characters differ.
+
+  - id: markdown_bold_whole_phrase
+    category: ambiguous
+    factor: markdown formatting around the phrase
+    response: "Volcanoes form when magma rises to the surface. **Any other questions?**"
+    expected_literal: false
+    expected_intent: true
+    note: Characters (**) follow the question mark.
+
+  - id: trailing_newline
+    category: ambiguous
+    factor: whitespace after the phrase
+    response: "Volcanoes form when magma rises to the surface. Any other questions?\n"
+    expected_literal: false
+    expected_intent: true
+    note: Very common in model outputs. Invisible when rendered.
+
+  # --- Invalid input ------------------------------------------------------
+  - id: empty_response
+    category: invalid
+    factor: empty response
+    response: ""
+    expected_literal: false
+    expected_intent: false
+    note: Nothing was produced. Not an instruction-following failure in the usual sense.
+
+  - id: truncated_response
+    category: invalid
+    factor: generation stopped by max_tokens
+    response: "Volcanoes form when magma rises to the surface. Any other"
+    expected_literal: false
+    expected_intent: false
+    note: >-
+      Fails because generation hit its length limit, not because the model
+      ignored the instruction. Record the stop reason separately from the verdict.
+
+  - id: prompt_param_mismatch
+    category: invalid
+    factor: prompt text and stored parameter disagree
+    prompt_override: >-
+      Explain how volcanoes form. Finish your response with this exact phrase
+      "Questions?". No other words should follow this phrase.
+    end_phrase_override: "Any other questions?"
+    response: "Volcanoes form when magma rises to the surface. Questions?"
+    expected_literal: true
+    expected_intent: true
+    note: >-
+      The model only sees the prompt text, so following it deserves True.
+      A checker reading the stored end_phrase would say False. This is a
+      dataset defect, not a checker defect.
