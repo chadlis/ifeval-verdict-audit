@@ -55,6 +55,31 @@ For this family and this version, where does the automatic verdict depend on a c
 3. Check agreement between the instruction text, the stored `end_phrase` and the checker.
 4. Compare findings with known issues (IFEval++, ACL 2026, appendix B.3) before claiming anything new.
 
+## Environment (pinned)
+
+First smoke run on 2026-11-05, macOS (Apple Silicon), with `mockllm/model` on the first 3 samples.
+
+| Component | Version |
+|---|---|
+| Python | 3.12.9 (the default 3.14 is rejected by the lockfile, which requires < 3.14) |
+| `inspect_evals` | commit `d95bb308e49d810617ae65f8052dfd848e9ffedb` (package `0.27.1.dev16+gd95bb308e`) |
+| `inspect-ai` | 0.3.285 |
+| `instruction-following-eval` (fork holding the checkers) | `josejg/instruction_following_eval` @ `0c495b2f95155e8b10acb919ae283bfb4d5be6e2` |
+| Dataset | `google/IFEval` from Hugging Face (541 samples) |
+
+Install, from an `inspect_evals` checkout at the commit above:
+
+```bash
+uv sync --python 3.12 --extra ifeval --group ifeval
+uv run inspect eval inspect_evals/ifeval --model mockllm/model --limit 3
+```
+
+### Warnings observed on the smoke run (to explain, not ignore)
+
+- `nltk` reports `Security Violation [pathsec.ZipFile]` on `punkt.zip` and `punkt_tab.zip`. If these tokenizer resources failed to load, checkers that count words or sentences may be affected. `startend:end_checker` does not count, so it is presumably unaffected. To verify.
+- `Mean of empty slice` and `Metric inspect_evals/if_metric raised on an empty sample set; reporting NaN`. Probably due to running only 3 samples. To verify.
+- The sample score stores the **number** of passed instructions (`inst_level_strict: 1` for sample 1000, which has 3 instructions), not which instruction passed. To check whether per-instruction verdicts are recorded elsewhere in the log.
+
 ## Constraints
 
 - Pinned environment versions; item identifiers kept.
