@@ -59,7 +59,7 @@ For this family and this version, where does the automatic verdict depend on a c
 
 1. Expected verdicts written before reading the checker. ✅
 2. Cases run through the official checker, strict and loose; every disagreement explained from the code. ✅ ([results](results/2026-11-24-end_checker_observed.txt), [explanations](notes/2026-11-24-explanations.md))
-3. Real data: agreement between prompt text and stored `end_phrase`, and non-null `end_phrase`, for every `end_checker` item.
+3. Real data: agreement between prompt text and stored `end_phrase`, and non-null `end_phrase`, for every `end_checker` item. ✅ 26 items, no defect on the raw Hugging Face data ([check](notes/2026-11-24-dataset-check.md))
 4. Comparison with known issues (IFEval++, appendix B.3).
 5. The same cases as an Inspect task, with a custom scorer and tests.
 6. Per-constraint verdicts recovered from Inspect logs.
@@ -71,7 +71,7 @@ For this family and this version, where does the automatic verdict depend on a c
 - Loose additionally removes every `*`, so markdown bold no longer matters.
 - Extra punctuation after the phrase fails in both modes.
 - The checker compares with the stored `end_phrase`, never with the prompt text the model saw.
-- If `end_phrase` is missing, the checker falls back to a randomly chosen phrase, silently. Whether this can happen on real items is not established yet.
+- If `end_phrase` is missing, the checker falls back to a randomly chosen phrase, silently. On the raw dataset no `end_checker` item lacks it; the data as loaded by Inspect Evals is not checked yet.
 
 These are properties of the checker on hand-written cases, not claims about the dataset or about any model.
 
