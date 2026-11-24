@@ -107,3 +107,9 @@ uv run inspect eval inspect_evals/ifeval --model mockllm/model --limit 3
 - Pinned environment versions; item identifiers kept.
 - No paid API calls at this stage: fixtures or a local model only (this tests the scoring pipeline, not a model).
 - No proprietary or professional data in this repository.
+
+## Use of AI
+
+An AI assistant (Claude, Anthropic) was used to write code, for example [`scripts/run_end_checker.py`](scripts/run_end_checker.py), and to draft and edit documentation, including parts of this README.
+
+All design decisions (audit question, scope, test cases, method) and the verification of every result are mine.
