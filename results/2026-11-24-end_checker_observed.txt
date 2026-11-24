@@ -1,0 +1,17 @@
+id                           literal  intent   strict   loose   
+----------------------------------------------------------------
+reference                    True     True     True     True    
+phrase_only                  True     True     True     True    
+words_after_phrase           False    False    False    False   
+polite_closing_after_phrase  False    False    False    False   
+word_inserted_in_phrase      False    False    False    False   
+phrase_absent                False    False    False    False   
+lowercase_phrase             False    True     True     True    
+quotes_around_phrase         False    True     True     True    
+extra_punctuation_after      False    True     False    False   
+markdown_bold_one_word       False    True     False    True    
+markdown_bold_whole_phrase   False    True     False    True    
+trailing_newline             False    True     True     True    
+empty_response               False    False    False    False   
+truncated_response           False    False    False    False   
+prompt_param_mismatch        True     True     False    False   
