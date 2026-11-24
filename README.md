@@ -2,7 +2,7 @@
 
 A reproducible audit of one IFEval instruction family: does the automatic verdict say what the instruction requires?
 
-**Status:** framing (P1), started 2026-11-05. Nothing has been run yet.
+**Status:** the 15 cases have been run through the official checker (2026-11-24). See [Status and roadmap](#status-and-roadmap).
 
 ## Object
 
@@ -48,12 +48,32 @@ Help someone comparing models on IFEval tell whether a score gap on this family 
 
 For this family and this version, where does the automatic verdict depend on a convention, and where does it diverge from the instruction? Which cases show it reproducibly?
 
-## Method (planned)
+## Method
 
 1. Write expected verdicts from the instruction text, **before** reading the checker's code or output. Each test case changes **one factor** relative to a reference response that passes. Ambiguous cases record both readings instead of picking one. Cases: [`cases/end_checker_expected.yaml`](cases/end_checker_expected.yaml).
-2. Run the cases through the checker and compare, case by case: agreement, disagreement, or convention.
+2. Run the cases through the checker and compare, case by case: agreement, disagreement, or convention. Prediction written and committed before the run: [`notes/2026-11-24-prediction.md`](notes/2026-11-24-prediction.md). Script: [`scripts/run_end_checker.py`](scripts/run_end_checker.py).
 3. Check agreement between the instruction text, the stored `end_phrase` and the checker.
 4. Compare findings with known issues (IFEval++, ACL 2026, appendix B.3) before claiming anything new.
+
+## Status and roadmap
+
+1. Expected verdicts written before reading the checker. ✅
+2. Cases run through the official checker, strict and loose; every disagreement explained from the code. ✅ ([results](results/2026-11-24-end_checker_observed.txt), [explanations](notes/2026-11-24-explanations.md))
+3. Real data: agreement between prompt text and stored `end_phrase`, and non-null `end_phrase`, for every `end_checker` item.
+4. Comparison with known issues (IFEval++, appendix B.3).
+5. The same cases as an Inspect task, with a custom scorer and tests.
+6. Per-constraint verdicts recovered from Inspect logs.
+7. An LLM judge compared with hand labels on the same family.
+
+### First findings (synthetic cases only)
+
+- "Strict" is not a raw character comparison: it ignores letter case, outer straight quotes and surrounding whitespace.
+- Loose additionally removes every `*`, so markdown bold no longer matters.
+- Extra punctuation after the phrase fails in both modes.
+- The checker compares with the stored `end_phrase`, never with the prompt text the model saw.
+- If `end_phrase` is missing, the checker falls back to a randomly chosen phrase, silently. Whether this can happen on real items is not established yet.
+
+These are properties of the checker on hand-written cases, not claims about the dataset or about any model.
 
 ## Environment (pinned)
 
@@ -67,7 +87,9 @@ First smoke run on 2026-11-05, macOS (Apple Silicon), with `mockllm/model` on th
 | `instruction-following-eval` (fork holding the checkers) | `josejg/instruction_following_eval` @ `0c495b2f95155e8b10acb919ae283bfb4d5be6e2` |
 | Dataset | `google/IFEval` from Hugging Face (541 samples) |
 
-Install, from an `inspect_evals` checkout at the commit above:
+The checker alone (steps 1–2) runs from this repository: `uv sync`, then `uv run python scripts/run_end_checker.py` (Python 3.12, fork pinned in `pyproject.toml`).
+
+The full Inspect pipeline is installed from an `inspect_evals` checkout at the commit above:
 
 ```bash
 uv sync --python 3.12 --extra ifeval --group ifeval
